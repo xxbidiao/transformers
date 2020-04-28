@@ -143,9 +143,10 @@ class Attention(nn.Module):
     def _attn(self, q, k, v, attention_mask=None, head_mask=None):
         w = torch.matmul(q, k)
         if self.scale:
-            w = w / math.sqrt(v.size(-1))
+            w = w * torch.rsqrt(v.size(-1))
+
         nd, ns = w.size(-2), w.size(-1)
-        mask = self.bias[:, :, ns - nd : ns, :ns]
+        mask = self.bias[:, :, ns - nd: ns, :ns]
         w = torch.where(mask, w, self.masked_bias)
 
         if attention_mask is not None:
